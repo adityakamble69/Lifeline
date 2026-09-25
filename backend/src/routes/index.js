@@ -1,0 +1,48 @@
+import { Router } from 'express';
+import healthRoutes from './health.routes.js';
+import authRoutes from './auth.routes.js';
+import requestsRoutes from './requests.routes.js';
+import campsRoutes from './camps.routes.js';
+import donorsRoutes from './donors.routes.js';
+import meRoutes from './me.routes.js';
+import organizationsRoutes from './organizations.routes.js';
+import donorApprovalsRoutes from './donorApprovals.routes.js';
+import dashboardRoutes from './dashboard.routes.js';
+import adminCampsRoutes from './adminCamps.routes.js';
+import adminRequestsRoutes from './adminRequests.routes.js';
+import adminRegistrationsRoutes from './adminRegistrations.routes.js';
+import adminVolunteersRoutes from './adminVolunteers.routes.js';
+import adminFeedbackRoutes from './adminFeedback.routes.js';
+import adminOrganizationRoutes from './adminOrganization.routes.js';
+import adminTeamRoutes from './adminTeam.routes.js';
+import analyticsRoutes from './analytics.routes.js';
+import adminExportRoutes from './adminExport.routes.js';
+import adminInventoryRoutes from './adminInventory.routes.js';
+import adminMessagesRoutes from './adminMessages.routes.js';
+import adminNotificationsRoutes from './adminNotifications.routes.js';
+
+const router = Router();
+
+router.use(healthRoutes);
+router.use(authRoutes);
+router.use(requestsRoutes);
+router.use(campsRoutes);
+router.use(donorsRoutes);
+router.use(meRoutes);
+router.use(organizationsRoutes);
+router.use(donorApprovalsRoutes);
+router.use(dashboardRoutes);
+router.use(adminCampsRoutes);
+router.use(adminRequestsRoutes);
+router.use(adminRegistrationsRoutes);
+router.use(adminVolunteersRoutes);
+router.use(adminFeedbackRoutes);
+router.use(adminOrganizationRoutes);
+router.use(adminTeamRoutes);
+router.use(analyticsRoutes);
+router.use(adminExportRoutes);
+router.use(adminInventoryRoutes);
+router.use(adminMessagesRoutes);
+router.use(adminNotificationsRoutes);
+
+export default router;

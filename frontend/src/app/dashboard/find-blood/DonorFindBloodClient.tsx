@@ -1,0 +1,298 @@
+"use client";
+
+import * as React from "react";
+import Link from "next/link";
+import {
+  AlertCircle,
+  ArrowRight,
+  Users,
+  Phone,
+  Shield,
+  Clock,
+} from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import {
+  EmptyState,
+  ErrorState,
+  SkeletonTableRows,
+} from "@/components/ui/States";
+import {
+  DonorCard,
+  type DonorCardData,
+} from "@/components/donor/DonorCard";
+import {
+  FindBloodFilters,
+  type FindBloodFiltersState,
+} from "@/components/donor/FindBloodFilters";
+import {
+  searchDonors,
+  formatDonationDate,
+  type DonorListItem,
+} from "@/lib/api";
+
+function toCardData(donor: DonorListItem): DonorCardData {
+  return {
+    id: donor.id,
+    name: donor.name,
+    age: donor.age,
+    bloodGroup: donor.blood_group,
+    city: donor.city,
+    lastDonation: formatDonationDate(donor.last_donation),
+    availability: donor.availability,
+    verified: donor.verified,
+  };
+}
+
+export function DonorFindBloodClient() {
+  const [filters, setFilters] = React.useState<FindBloodFiltersState | null>(
+    null,
+  );
+  const [donors, setDonors] = React.useState<DonorCardData[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const load = React.useCallback(async (f?: FindBloodFiltersState | null) => {
+    setLoading(true);
+    setError(null);
+
+    const res = await searchDonors({
+      bloodGroup: f?.bloodGroup,
+      city: f?.city,
+      availability:
+        f?.availability === "Available Now" ? "available" : undefined,
+    });
+
+    if (!res.success) {
+      setError(res.error.message);
+      setDonors([]);
+      setLoading(false);
+      return;
+    }
+
+    setDonors(res.data.donors.map(toCardData));
+    setLoading(false);
+  }, []);
+
+  React.useEffect(() => {
+    void load(null);
+  }, [load]);
+
+  const handleSearch = (next: FindBloodFiltersState) => {
+    setFilters(next);
+    void load(next);
+  };
+
+  return (
+    <div className="flex flex-col gap-6">
+      {/* Header */}
+      <section className="overflow-hidden rounded-3xl bg-gradient-to-br from-primary-light via-primary-light/60 to-background p-6 sm:p-8">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
+              Find Blood
+            </p>
+            <h1 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
+              Find Blood.{" "}
+              <span className="text-primary">Save Lives.</span>
+            </h1>
+            <p className="mt-3 max-w-xl text-sm text-text-secondary sm:text-base">
+              Search for blood donors near you and connect with them directly.
+              Because together, we can make a difference.
+            </p>
+          </div>
+          <div className="hidden rounded-2xl bg-surface/70 p-5 backdrop-blur lg:block">
+            <p className="font-['Brush_Script_MT',_cursive] text-lg leading-snug text-primary">
+              &ldquo;A few minutes
+              <br />
+              of your time can give
+              <br />
+              a lifetime to someone.&rdquo;
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Filters */}
+      <FindBloodFilters onSearch={handleSearch} />
+
+      {/* Results + sidebar */}
+      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold text-navy">
+                {loading
+                  ? "Searching donors…"
+                  : `${donors.length} Donors Found`}
+              </h2>
+              <p className="text-xs text-text-secondary">
+                Sorted by most recent donation
+              </p>
+            </div>
+            {filters && !loading && (
+              <p className="text-xs text-text-secondary">
+                Filters: {filters.bloodGroup} · {filters.city} · {filters.radius}
+              </p>
+            )}
+          </div>
+
+          {loading && (
+            <div className="rounded-2xl border border-border bg-surface shadow-[var(--shadow-card)]">
+              <SkeletonTableRows rows={5} cols={3} />
+            </div>
+          )}
+
+          {!loading && error && (
+            <ErrorState
+              title="Couldn't load donors"
+              description={error}
+              onRetry={() => void load(filters)}
+            />
+          )}
+
+          {!loading && !error && donors.length === 0 && (
+            <EmptyState
+              icon={<Users className="h-6 w-6" aria-hidden />}
+              title="No donors found"
+              description="Try a different blood group or city. Or create an emergency request and we'll notify nearby donors."
+              action={{
+                label: "Request Blood",
+                onClick: () => {
+                  window.location.href = "/dashboard/emergency-requests";
+                },
+              }}
+            />
+          )}
+
+          {!loading && !error && donors.length > 0 && (
+            <div className="flex flex-col gap-3">
+              {donors.map((donor) => (
+                <DonorCard key={donor.id} donor={donor} />
+              ))}
+            </div>
+          )}
+
+          {/* Privacy note */}
+          <div className="flex gap-3 rounded-2xl border border-blue-light bg-blue-light/40 p-4">
+            <span className="mt-0.5 shrink-0 text-blue">
+              <AlertCircle className="h-5 w-5" aria-hidden />
+            </span>
+            <p className="text-xs leading-relaxed text-navy">
+              <strong className="font-semibold">Important:</strong> Please
+              respect the donor&apos;s time and privacy. Contact only for
+              genuine blood requests. Misuse of information may result in
+              account suspension.
+            </p>
+          </div>
+        </div>
+
+        {/* Sidebar */}
+        <aside className="flex flex-col gap-4">
+          {/* Map placeholder */}
+          <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-[var(--shadow-card)]">
+            <div className="relative aspect-[4/3] bg-gradient-to-br from-primary-light via-background to-blue-light">
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-6 text-center">
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white shadow-lg">
+                  <span className="h-3 w-3 rounded-full bg-white" />
+                </span>
+                <p className="text-sm font-semibold text-navy">
+                  Donors Near You
+                </p>
+                <p className="text-xs text-text-secondary">
+                  Map view coming soon.
+                </p>
+              </div>
+            </div>
+            <div className="border-t border-border p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
+                Legend
+              </p>
+              <div className="mt-2 flex flex-wrap gap-3 text-xs text-navy">
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="h-2.5 w-2.5 rounded-full bg-primary" />
+                  Donor location
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="h-2.5 w-2.5 rounded-full bg-blue" />
+                  Your location
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Can't find? */}
+          <div className="rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
+            <div className="mb-3 flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-light text-primary">
+                <AlertCircle className="h-5 w-5" aria-hidden />
+              </span>
+              <h3 className="text-base font-semibold text-navy">
+                Can&apos;t find a donor?
+              </h3>
+            </div>
+            <p className="text-sm text-text-secondary">
+              Create an emergency blood request. We&apos;ll notify nearby
+              donors and NGOs immediately.
+            </p>
+            <Link href="/dashboard/emergency-requests" className="mt-4 block">
+              <Button variant="primary" size="sm" className="w-full gap-2">
+                Request Blood
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </Button>
+            </Link>
+          </div>
+
+          {/* Emergency helpline */}
+          <div className="rounded-2xl border border-primary-light bg-primary-light/40 p-5">
+            <div className="mb-3 flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white">
+                <Phone className="h-5 w-5" aria-hidden />
+              </span>
+              <h3 className="text-base font-semibold text-navy">
+                Emergency? Call Now
+              </h3>
+            </div>
+            <p className="text-sm text-text-secondary">
+              Need immediate help? Contact our 24/7 support team.
+            </p>
+            <a
+              href="tel:+919876543210"
+              className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
+            >
+              <Phone className="h-4 w-4" aria-hidden />
+              +91 98765 43210
+            </a>
+          </div>
+
+          {/* Why verify */}
+          <div className="rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
+            <div className="mb-3 flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-light text-green">
+                <Shield className="h-5 w-5" aria-hidden />
+              </span>
+              <h3 className="text-base font-semibold text-navy">
+                Verified Donors Only
+              </h3>
+            </div>
+            <p className="text-xs leading-relaxed text-text-secondary">
+              Every donor shown here has been verified by our team. We check
+              eligibility and consent before listing.
+            </p>
+          </div>
+
+          {/* Important info */}
+          <div className="flex gap-3 rounded-2xl border border-orange-light bg-orange-light/40 p-4">
+            <Clock
+              className="mt-0.5 h-4 w-4 shrink-0 text-orange"
+              aria-hidden
+            />
+            <p className="text-[11px] leading-relaxed text-navy">
+              Donors must wait <strong>3 months</strong> between whole blood
+              donations. Respect their cooldown period.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  );
+}

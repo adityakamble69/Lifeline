@@ -1,0 +1,210 @@
+@import "tailwindcss";
+
+:root {
+  /* Lifeline design tokens — see /docs/design.md and /docs/ui-ux.md */
+
+  /* Primary (red) */
+  --color-primary-red: #e53935;
+  --color-deep-red: #c62828;
+  --color-light-red: #feecec;
+
+  /* Navy */
+  --color-navy: #101b5c;
+  --color-navy-dark: #0b1448;
+  --color-navy-light: #eaf0ff;
+
+  /* Blue (info / donor actions) */
+  --color-blue: #2563eb;
+  --color-blue-light: #eaf2ff;
+
+  /* Green (success) */
+  --color-green: #16a34a;
+  --color-green-light: #eaf8ef;
+
+  /* Orange (warning / pending) */
+  --color-orange: #f59e0b;
+  --color-orange-light: #fff6dd;
+
+  /* Purple (volunteers / secondary analytics) */
+  --color-purple: #7c3aed;
+  --color-purple-light: #f2eaff;
+
+  /* Neutrals */
+  --color-bg: #f7f9fc;
+  --color-surface: #ffffff;
+  --color-text-primary: #111827;
+  --color-text-secondary: #64748b;
+  --color-border: #e5e7eb;
+
+  /* Semantic aliases */
+  --color-success: var(--color-green);
+  --color-success-light: var(--color-green-light);
+  --color-warning: var(--color-orange);
+  --color-warning-light: var(--color-orange-light);
+  --color-error: var(--color-deep-red);
+  --color-error-light: var(--color-light-red);
+  --color-info: var(--color-blue);
+  --color-info-light: var(--color-blue-light);
+
+  --background: var(--color-bg);
+  --foreground: var(--color-text-primary);
+
+  /* Shadows */
+  --shadow-card: 0 2px 10px rgba(15, 23, 42, 0.05);
+  --shadow-elevated: 0 8px 24px rgba(15, 23, 42, 0.08);
+
+  /* Layout */
+  --sidebar-width: 250px;
+  --header-height: 72px;
+}
+
+/* ─── Dark Mode Overrides ──────────────────────────────────────────── */
+.dark {
+  --color-navy: #E2E8F0;
+  --color-navy-dark: #CBD5E1;
+  --color-navy-light: #1E293B;
+
+  --color-bg: #0F172A;
+  --color-surface: #1E293B;
+  --color-text-primary: #F1F5F9;
+  --color-text-secondary: #94A3B8;
+  --color-border: #334155;
+
+  --color-primary-red: #F87171;
+  --color-deep-red: #DC2626;
+  --color-light-red: #450A0A;
+
+  --color-blue: #60A5FA;
+  --color-blue-light: #1E3A8A;
+  --color-green: #4ADE80;
+  --color-green-light: #14532D;
+  --color-orange: #FBBF24;
+  --color-orange-light: #451A03;
+  --color-purple: #A78BFA;
+  --color-purple-light: #3B0764;
+
+  --background: var(--color-bg);
+  --foreground: var(--color-text-primary);
+
+  color-scheme: dark;
+}
+
+/* ─── Primary Color Overrides (via data-color on <html>) ───────────── */
+[data-color="blue"] {
+  --color-primary-red: #2563EB;
+  --color-deep-red: #1D4ED8;
+  --color-light-red: #EAF2FF;
+}
+.dark[data-color="blue"] {
+  --color-primary-red: #60A5FA;
+  --color-deep-red: #3B82F6;
+  --color-light-red: #1E3A8A;
+}
+
+[data-color="green"] {
+  --color-primary-red: #16A34A;
+  --color-deep-red: #15803D;
+  --color-light-red: #EAF8EF;
+}
+.dark[data-color="green"] {
+  --color-primary-red: #4ADE80;
+  --color-deep-red: #22C55E;
+  --color-light-red: #14532D;
+}
+
+[data-color="purple"] {
+  --color-primary-red: #7C3AED;
+  --color-deep-red: #6D28D9;
+  --color-light-red: #F2EAFF;
+}
+.dark[data-color="purple"] {
+  --color-primary-red: #A78BFA;
+  --color-deep-red: #8B5CF6;
+  --color-light-red: #3B0764;
+}
+
+[data-color="orange"] {
+  --color-primary-red: #F59E0B;
+  --color-deep-red: #D97706;
+  --color-light-red: #FFF6DD;
+}
+.dark[data-color="orange"] {
+  --color-primary-red: #FBBF24;
+  --color-deep-red: #F59E0B;
+  --color-light-red: #451A03;
+}
+
+[data-color="pink"] {
+  --color-primary-red: #EC4899;
+  --color-deep-red: #DB2777;
+  --color-light-red: #FCE7F3;
+}
+.dark[data-color="pink"] {
+  --color-primary-red: #F472B6;
+  --color-deep-red: #EC4899;
+  --color-light-red: #500724;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-primary: var(--color-primary-red);
+  --color-primary-deep: var(--color-deep-red);
+  --color-primary-light: var(--color-light-red);
+
+  --color-navy: var(--color-navy);
+  --color-navy-dark: var(--color-navy-dark);
+  --color-navy-light: var(--color-navy-light);
+
+  --color-blue: var(--color-blue);
+  --color-blue-light: var(--color-blue-light);
+
+  --color-green: var(--color-green);
+  --color-green-light: var(--color-green-light);
+
+  --color-orange: var(--color-orange);
+  --color-orange-light: var(--color-orange-light);
+
+  --color-purple: var(--color-purple);
+  --color-purple-light: var(--color-purple-light);
+
+  --color-surface: var(--color-surface);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-border: var(--color-border);
+
+  --color-success: var(--color-success);
+  --color-success-light: var(--color-success-light);
+  --color-warning: var(--color-warning);
+  --color-warning-light: var(--color-warning-light);
+  --color-error: var(--color-error);
+  --color-error-light: var(--color-error-light);
+  --color-info: var(--color-info);
+  --color-info-light: var(--color-info-light);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-elevated: var(--shadow-elevated);
+
+  --font-sans: var(--font-inter), Inter, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, monospace;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
