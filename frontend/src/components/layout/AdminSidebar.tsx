@@ -22,7 +22,6 @@ import {
   X,
   Droplet,
 } from "lucide-react";
-import { useTranslation } from "@/components/providers";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
@@ -31,6 +30,56 @@ type NavItem = {
   icon: React.ComponentType<{ className?: string }>;
 };
 type NavGroup = { title?: string; items: NavItem[] };
+
+const groups: NavGroup[] = [
+  { items: [{ href: "/admin", label: "Dashboard", icon: LayoutDashboard }] },
+  {
+    title: "Camp Management",
+    items: [
+      { href: "/admin/camps", label: "Manage Camps", icon: Tent },
+      { href: "/admin/camps/registrations", label: "Registrations", icon: ClipboardList },
+      { href: "/admin/camps/volunteers", label: "Volunteers", icon: HeartHandshake },
+      { href: "/admin/camps/feedback", label: "Camp Feedback", icon: MessageSquare },
+    ],
+  },
+  {
+    title: "Donor Management",
+    items: [
+      { href: "/admin/donors", label: "Donors", icon: Users },
+      { href: "/admin/donor-approvals", label: "Donor Approvals", icon: ShieldCheck },
+      { href: "/admin/inventory", label: "Blood Inventory", icon: Droplets },
+    ],
+  },
+  {
+    title: "Request Management",
+    items: [
+      { href: "/admin/requests", label: "Emergency Requests", icon: Siren },
+      { href: "/admin/requests/verifications", label: "Request Verifications", icon: ShieldCheck },
+    ],
+  },
+  {
+    title: "Communication",
+    items: [
+      { href: "/admin/messages", label: "Messages", icon: MessageSquare },
+      { href: "/admin/notifications", label: "Notifications", icon: Bell },
+    ],
+  },
+  {
+    title: "Reports",
+    items: [
+      { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
+      { href: "/admin/export", label: "Export Data", icon: Download },
+    ],
+  },
+  {
+    title: "Settings",
+    items: [
+      { href: "/admin/organization", label: "Organization Profile", icon: Building2 },
+      { href: "/admin/team", label: "Team Members", icon: UserCog },
+      { href: "/admin/settings", label: "Settings", icon: Settings },
+    ],
+  },
+];
 
 function isActive(pathname: string, href: string) {
   return href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
@@ -45,118 +94,6 @@ function NavLinks({
   mounted: boolean;
   onNavigate?: () => void;
 }) {
-  const t = useTranslation();
-
-  const groups: NavGroup[] = [
-    {
-      items: [
-        { href: "/admin", label: t("nav.dashboard"), icon: LayoutDashboard },
-      ],
-    },
-    {
-      title: t("admin.campManagement"),
-      items: [
-        { href: "/admin/camps", label: t("admin.manageCamps"), icon: Tent },
-        {
-          href: "/admin/camps/registrations",
-          label: t("admin.registrations"),
-          icon: ClipboardList,
-        },
-        {
-          href: "/admin/camps/volunteers",
-          label: t("admin.volunteers"),
-          icon: HeartHandshake,
-        },
-        {
-          href: "/admin/camps/feedback",
-          label: t("admin.feedback"),
-          icon: MessageSquare,
-        },
-      ],
-    },
-    {
-      title: t("admin.donorManagement"),
-      items: [
-        { href: "/admin/donors", label: t("admin.donors"), icon: Users },
-        {
-          href: "/admin/donor-approvals",
-          label: t("admin.donorApprovals"),
-          icon: ShieldCheck,
-        },
-        {
-          href: "/admin/inventory",
-          label: t("admin.inventory"),
-          icon: Droplets,
-        },
-      ],
-    },
-    {
-      title: t("admin.requestManagement"),
-      items: [
-        {
-          href: "/admin/requests",
-          label: t("admin.emergencyRequests"),
-          icon: Siren,
-        },
-        {
-          href: "/admin/requests/verifications",
-          label: t("admin.requestVerifications"),
-          icon: ShieldCheck,
-        },
-      ],
-    },
-    {
-      title: t("admin.communication"),
-      items: [
-        {
-          href: "/admin/messages",
-          label: t("admin.messages"),
-          icon: MessageSquare,
-        },
-        {
-          href: "/admin/notifications",
-          label: t("admin.notifications"),
-          icon: Bell,
-        },
-      ],
-    },
-    {
-      title: t("admin.reports"),
-      items: [
-        {
-          href: "/admin/analytics",
-          label: t("admin.analytics"),
-          icon: BarChart3,
-        },
-        {
-          href: "/admin/export",
-          label: t("admin.exportData"),
-          icon: Download,
-        },
-      ],
-    },
-    {
-      title: t("admin.settingsGroup"),
-      items: [
-        {
-          href: "/admin/organization",
-          label: t("admin.organizationProfile"),
-          icon: Building2,
-        },
-        {
-          href: "/admin/team",
-          label: t("admin.teamMembers"),
-          icon: UserCog,
-        },
-        {
-          href: "/admin/settings",
-          label: t("admin.settings"),
-          icon: Settings,
-        },
-      ],
-    },
-  ];
-
   return (
     <nav className="flex flex-1 flex-col gap-5 overflow-y-auto px-3 pb-6">
       {groups.map((group, i) => (

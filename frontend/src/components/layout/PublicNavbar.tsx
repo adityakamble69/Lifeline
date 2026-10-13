@@ -9,22 +9,19 @@ import {
   UserButton,
 } from "@clerk/nextjs";
 import { Button } from "@/components/ui/Button";
-import { PublicThemeMenu } from "./PublicThemeMenu";
-import { useTranslation } from "@/components/providers";
 import { cn } from "@/lib/utils";
 
-export function PublicNavbar() {
-  const t = useTranslation();
-  const [open, setOpen] = React.useState(false);
+const links = [
+  { href: "/", label: "Home" },
+  { href: "/find-blood", label: "Find Blood" },
+  { href: "/camps", label: "Camps" },
+  { href: "/become-a-donor", label: "Become a Donor" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
+];
 
-  const links = [
-    { href: "/", label: t("public.home") },
-    { href: "/find-blood", label: t("public.findBlood") },
-    { href: "/camps", label: t("public.camps") },
-    { href: "/become-a-donor", label: t("public.becomeDonor") },
-    { href: "/about", label: t("public.about") },
-    { href: "/contact", label: t("public.contact") },
-  ];
+export function PublicNavbar() {
+  const [open, setOpen] = React.useState(false);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur">
@@ -49,18 +46,16 @@ export function PublicNavbar() {
         </nav>
 
         {/* Desktop auth area */}
-        <div className="hidden items-center gap-2 lg:flex">
-          <PublicThemeMenu />
-
+        <div className="hidden items-center gap-3 lg:flex">
           <Show when="signed-out">
             <SignInButton mode="modal">
               <Button variant="ghost" size="sm">
-                {t("public.login")}
+                Login
               </Button>
             </SignInButton>
             <Link href="/become-a-donor">
               <Button variant="primary" size="sm">
-                {t("public.becomeDonor")}
+                Become a Donor
               </Button>
             </Link>
           </Show>
@@ -68,7 +63,7 @@ export function PublicNavbar() {
           <Show when="signed-in">
             <Link href="/dashboard">
               <Button variant="ghost" size="sm">
-                {t("public.dashboard")}
+                Dashboard
               </Button>
             </Link>
             <UserButton
@@ -94,10 +89,13 @@ export function PublicNavbar() {
       <div
         className={cn(
           "overflow-hidden border-t border-border bg-surface transition-[max-height] duration-200 lg:hidden",
-          open ? "max-h-[600px]" : "max-h-0 border-t-0",
+          open ? "max-h-[560px]" : "max-h-0 border-t-0",
         )}
       >
-        <nav className="flex flex-col gap-1 px-4 py-3" aria-label="Primary mobile">
+        <nav
+          className="flex flex-col gap-1 px-4 py-3"
+          aria-label="Primary mobile"
+        >
           {links.map((l) => (
             <Link
               key={l.href}
@@ -114,12 +112,12 @@ export function PublicNavbar() {
               <div className="flex flex-col gap-2 px-3">
                 <SignInButton mode="modal">
                   <Button variant="secondary" size="sm" className="w-full">
-                    {t("public.login")}
+                    Login
                   </Button>
                 </SignInButton>
                 <Link href="/become-a-donor" onClick={() => setOpen(false)}>
                   <Button variant="primary" size="sm" className="w-full">
-                    {t("public.becomeDonor")}
+                    Become a Donor
                   </Button>
                 </Link>
               </div>
@@ -137,7 +135,7 @@ export function PublicNavbar() {
                     onClick={() => setOpen(false)}
                     className="text-sm font-semibold text-navy hover:text-primary"
                   >
-                    {t("public.dashboard")}
+                    Go to Dashboard
                   </Link>
                   <p className="text-xs text-text-secondary">
                     Manage your donations
@@ -145,14 +143,6 @@ export function PublicNavbar() {
                 </div>
               </div>
             </Show>
-          </div>
-
-          {/* Theme picker at bottom */}
-          <div className="mt-3 flex items-center justify-between border-t border-border px-3 pt-3">
-            <span className="text-xs font-medium text-text-secondary">
-              {t("theme.settings")}
-            </span>
-            <PublicThemeMenu />
           </div>
         </nav>
       </div>

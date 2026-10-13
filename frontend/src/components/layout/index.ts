@@ -1,6 +1,5 @@
 export * from "./PublicNavbar";
 export * from "./PublicFooter";
-export * from "./PublicThemeMenu";
 export * from "./AdminSidebar";
 export * from "./AdminHeader";
 export * from "./AdminLayout";

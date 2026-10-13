@@ -1,37 +1,32 @@
-"use client";
-
 import Link from "next/link";
 import { Droplet } from "lucide-react";
-import { useTranslation } from "@/components/providers";
+
+const columns = [
+  {
+    title: "Platform",
+    links: [
+      { href: "/find-blood", label: "Find Blood" },
+      { href: "/camps", label: "Camps" },
+      { href: "/become-a-donor", label: "Become a Donor" },
+    ],
+  },
+  {
+    title: "Company",
+    links: [
+      { href: "/about", label: "About" },
+      { href: "/contact", label: "Contact" },
+    ],
+  },
+  {
+    title: "Legal",
+    links: [
+      { href: "/privacy", label: "Privacy Policy" },
+      { href: "/terms", label: "Terms of Service" },
+    ],
+  },
+];
 
 export function PublicFooter() {
-  const t = useTranslation();
-
-  const columns = [
-    {
-      title: t("footer.platform"),
-      links: [
-        { href: "/find-blood", label: t("footer.findBlood") },
-        { href: "/camps", label: t("footer.camps") },
-        { href: "/become-a-donor", label: t("footer.becomeDonor") },
-      ],
-    },
-    {
-      title: t("footer.company"),
-      links: [
-        { href: "/about", label: t("footer.about") },
-        { href: "/contact", label: t("footer.contact") },
-      ],
-    },
-    {
-      title: t("footer.legal"),
-      links: [
-        { href: "/privacy", label: t("footer.privacy") },
-        { href: "/terms", label: t("footer.terms") },
-      ],
-    },
-  ];
-
   return (
     <footer className="mt-auto border-t border-border bg-surface">
       <div className="mx-auto grid max-w-[1440px] gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.4fr_1fr_1fr_1fr] lg:px-8">
@@ -43,7 +38,8 @@ export function PublicFooter() {
             <span className="text-lg">Lifeline</span>
           </div>
           <p className="mt-3 max-w-xs text-sm text-text-secondary">
-            {t("footer.tagline")}
+            Connecting blood donors, requesters, and donation camps on one
+            trusted platform.
           </p>
         </div>
 
@@ -67,8 +63,8 @@ export function PublicFooter() {
       </div>
 
       <div className="border-t border-border px-4 py-5 text-center text-xs text-text-secondary sm:px-6 lg:px-8">
-        © {new Date().getFullYear()} Lifeline Blood Donor Network.{" "}
-        {t("footer.rights")}
+        © {new Date().getFullYear()} Lifeline Blood Donor Network. All rights
+        reserved.
       </div>
     </footer>
   );

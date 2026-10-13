@@ -6,7 +6,6 @@ import {
   Settings as SettingsIcon,
   Shield,
   Bell,
-  Palette,
   Globe,
   Database,
   Users,
@@ -21,9 +20,6 @@ import {
   AlertCircle,
   ExternalLink,
   FileText,
-  Sun,
-  Moon,
-  Monitor,
   Building2,
   User,
 } from "lucide-react";
@@ -31,33 +27,23 @@ import { useAuth, useClerk } from "@clerk/nextjs";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { FormField, Input } from "@/components/ui/Input";
+import { FormField, Input, Select } from "@/components/ui/Input";
 import { updateMyUser, type MeProfile } from "@/lib/api";
-import { useApp } from "@/components/providers";
-import { LANGUAGE_OPTIONS } from "@/lib/translations";
 import { cn } from "@/lib/utils";
 
 type SectionId =
   | "general"
   | "security"
   | "notifications"
-  | "appearance"
-  | "language"
   | "privacy"
   | "team"
   | "integrations";
 
-const PRIMARY_COLORS = [
-  { id: "red", color: "#E53935", label: "Red" },
-  { id: "blue", color: "#2563EB", label: "Blue" },
-  { id: "green", color: "#16A34A", label: "Green" },
-  { id: "purple", color: "#7C3AED", label: "Purple" },
-  { id: "orange", color: "#F59E0B", label: "Orange" },
-  { id: "pink", color: "#EC4899", label: "Pink" },
-] as const;
-
-type ThemeOption = "light" | "dark" | "system";
-type PrimaryColorOption = (typeof PRIMARY_COLORS)[number]["id"];
+const LANGUAGES = [
+  { id: "en", label: "English (India)" },
+  { id: "hi", label: "हिन्दी" },
+  { id: "mr", label: "मराठी" },
+];
 
 interface Props {
   token: string;
@@ -67,15 +53,6 @@ interface Props {
 export function AdminSettingsClient({ profile }: Props) {
   const { getToken } = useAuth();
   const { openUserProfile } = useClerk();
-  const {
-    theme,
-    primaryColor,
-    language,
-    setTheme,
-    setPrimaryColor,
-    setLanguage,
-    t,
-  } = useApp();
 
   const [activeSection, setActiveSection] =
     React.useState<SectionId>("general");
@@ -85,24 +62,12 @@ export function AdminSettingsClient({ profile }: Props) {
     label: string;
     icon: React.ComponentType<{ className?: string }>;
   }[] = [
-    { id: "general", label: t("settings.general"), icon: SettingsIcon },
-    { id: "security", label: t("settings.security"), icon: Shield },
-    { id: "notifications", label: t("settings.notifications"), icon: Bell },
-    { id: "appearance", label: t("settings.appearance"), icon: Palette },
-    { id: "language", label: t("settings.language"), icon: Globe },
-    { id: "privacy", label: t("settings.dataPrivacy"), icon: Database },
-    { id: "team", label: t("settings.teamPermissions"), icon: Users },
-    { id: "integrations", label: t("settings.integrations"), icon: Plug },
-  ];
-
-  const THEMES: {
-    id: ThemeOption;
-    label: string;
-    icon: React.ComponentType<{ className?: string }>;
-  }[] = [
-    { id: "light", label: t("settings.themeLight"), icon: Sun },
-    { id: "dark", label: t("settings.themeDark"), icon: Moon },
-    { id: "system", label: t("settings.themeSystem"), icon: Monitor },
+    { id: "general", label: "General", icon: SettingsIcon },
+    { id: "security", label: "Security", icon: Shield },
+    { id: "notifications", label: "Notifications", icon: Bell },
+    { id: "privacy", label: "Data & Privacy", icon: Database },
+    { id: "team", label: "Team & Permissions", icon: Users },
+    { id: "integrations", label: "Integrations", icon: Plug },
   ];
 
   // ── General settings ────────────────────────────────────────────────
@@ -134,7 +99,7 @@ export function AdminSettingsClient({ profile }: Props) {
     }
   };
 
-  // ── Notification toggles (persisted separately) ─────────────────────
+  // ── Notification toggles ────────────────────────────────────────────
   const [notifs, setNotifs] = React.useState({
     donor_approvals: true,
     new_requests: true,
@@ -164,6 +129,27 @@ export function AdminSettingsClient({ profile }: Props) {
     }
   };
 
+  // ── Language (local only) ──────────────────────────────────────────
+  const [language, setLanguage] = React.useState("en");
+
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem("lifeline.admin.language");
+      if (stored) setLanguage(stored);
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const updateLanguage = (l: string) => {
+    setLanguage(l);
+    try {
+      localStorage.setItem("lifeline.admin.language", l);
+    } catch {
+      // ignore
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
@@ -171,10 +157,11 @@ export function AdminSettingsClient({ profile }: Props) {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">
-              {t("settings.settings")}
+              Settings
             </p>
             <h1 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
-              {t("settings.settings")}
+              Manage Your{" "}
+              <span className="text-primary">Preferences</span>
             </h1>
             <p className="mt-3 max-w-xl text-sm text-text-secondary sm:text-base">
               Customize your organization settings, security preferences,
@@ -325,6 +312,54 @@ export function AdminSettingsClient({ profile }: Props) {
 
               <Card>
                 <div className="mb-4 flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-text-secondary" aria-hidden />
+                  <div>
+                    <h2 className="text-lg font-semibold text-navy">
+                      Language
+                    </h2>
+                    <p className="text-xs text-text-secondary">
+                      Choose your preferred language.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {LANGUAGES.map((l) => {
+                    const active = language === l.id;
+                    return (
+                      <button
+                        key={l.id}
+                        suppressHydrationWarning
+                        type="button"
+                        onClick={() => updateLanguage(l.id)}
+                        className={cn(
+                          "flex items-center justify-between gap-3 rounded-2xl border-2 p-4 text-left transition-colors",
+                          active
+                            ? "border-primary bg-primary-light/30"
+                            : "border-border bg-surface hover:border-primary/40",
+                        )}
+                      >
+                        <span className="text-sm font-semibold text-navy">
+                          {l.label}
+                        </span>
+                        {active && (
+                          <CheckCircle2
+                            className="h-4 w-4 shrink-0 text-primary"
+                            aria-hidden
+                          />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="mt-5 text-[11px] text-text-secondary">
+                  Language preference is saved locally. Full site
+                  translation coming soon.
+                </p>
+              </Card>
+
+              <Card>
+                <div className="mb-4 flex items-center gap-2">
                   <Building2
                     className="h-4 w-4 text-text-secondary"
                     aria-hidden
@@ -356,7 +391,7 @@ export function AdminSettingsClient({ profile }: Props) {
                 <Shield className="h-4 w-4 text-text-secondary" aria-hidden />
                 <div>
                   <h2 className="text-lg font-semibold text-navy">
-                    {t("settings.security")}
+                    Security Settings
                   </h2>
                   <p className="text-xs text-text-secondary">
                     Keep your account safe and secure.
@@ -406,7 +441,7 @@ export function AdminSettingsClient({ profile }: Props) {
                 <Bell className="h-4 w-4 text-text-secondary" aria-hidden />
                 <div>
                   <h2 className="text-lg font-semibold text-navy">
-                    {t("settings.notifications")}
+                    Notification Settings
                   </h2>
                   <p className="text-xs text-text-secondary">
                     Choose what notifications you want to receive.
@@ -492,150 +527,6 @@ export function AdminSettingsClient({ profile }: Props) {
             </Card>
           )}
 
-          {/* APPEARANCE */}
-          {activeSection === "appearance" && (
-            <Card>
-              <div className="mb-4 flex items-center gap-2">
-                <Palette className="h-4 w-4 text-text-secondary" aria-hidden />
-                <div>
-                  <h2 className="text-lg font-semibold text-navy">
-                    {t("settings.appearance")}
-                  </h2>
-                  <p className="text-xs text-text-secondary">
-                    Customize the look and feel.
-                  </p>
-                </div>
-              </div>
-
-              {/* Theme */}
-              <div className="mb-6">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-secondary">
-                  {t("settings.theme")}
-                </p>
-                <div className="grid gap-3 sm:grid-cols-3">
-                  {THEMES.map((th) => {
-                    const Icon = th.icon;
-                    const active = theme === th.id;
-                    return (
-                      <button
-                        key={th.id}
-                        suppressHydrationWarning
-                        type="button"
-                        onClick={() => setTheme(th.id)}
-                        className={cn(
-                          "flex flex-col items-center gap-2 rounded-2xl border-2 p-4 transition-colors",
-                          active
-                            ? "border-primary bg-primary-light/30"
-                            : "border-border bg-surface hover:border-primary/40",
-                        )}
-                      >
-                        <span
-                          className={cn(
-                            "flex h-10 w-10 items-center justify-center rounded-xl",
-                            active
-                              ? "bg-primary text-white"
-                              : "bg-background text-text-secondary",
-                          )}
-                        >
-                          <Icon className="h-5 w-5" aria-hidden />
-                        </span>
-                        <span className="text-xs font-semibold text-navy">
-                          {th.label}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Primary color */}
-              <div>
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-secondary">
-                  {t("settings.primaryColor")}
-                </p>
-                <div className="flex flex-wrap gap-3">
-                  {PRIMARY_COLORS.map((c) => {
-                    const active = primaryColor === c.id;
-                    return (
-                      <button
-                        key={c.id}
-                        suppressHydrationWarning
-                        type="button"
-                        onClick={() => setPrimaryColor(c.id as PrimaryColorOption)}
-                        aria-label={c.label}
-                        className={cn(
-                          "relative h-10 w-10 rounded-full transition-all",
-                          active && "ring-2 ring-offset-2 ring-primary",
-                        )}
-                        style={{ backgroundColor: c.color }}
-                      >
-                        {active && (
-                          <span className="absolute inset-0 flex items-center justify-center text-white">
-                            <CheckCircle2 className="h-4 w-4" aria-hidden />
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-                <p className="mt-3 text-[11px] text-text-secondary">
-                  The Lifeline red is recommended for brand consistency. Color
-                  changes apply to your account only.
-                </p>
-              </div>
-            </Card>
-          )}
-
-          {/* LANGUAGE */}
-          {activeSection === "language" && (
-            <Card>
-              <div className="mb-4 flex items-center gap-2">
-                <Globe className="h-4 w-4 text-text-secondary" aria-hidden />
-                <div>
-                  <h2 className="text-lg font-semibold text-navy">
-                    {t("settings.language")}
-                  </h2>
-                  <p className="text-xs text-text-secondary">
-                    Choose your preferred language.
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-3">
-                {LANGUAGE_OPTIONS.map((l) => {
-                  const active = language === l.id;
-                  return (
-                    <button
-                      key={l.id}
-                      suppressHydrationWarning
-                      type="button"
-                      onClick={() => setLanguage(l.id)}
-                      className={cn(
-                        "flex items-center justify-between gap-3 rounded-2xl border-2 p-4 text-left transition-colors",
-                        active
-                          ? "border-primary bg-primary-light/30"
-                          : "border-border bg-surface hover:border-primary/40",
-                      )}
-                    >
-                      <span className="text-sm font-semibold text-navy">
-                        {l.label}
-                      </span>
-                      {active && (
-                        <CheckCircle2
-                          className="h-4 w-4 shrink-0 text-primary"
-                          aria-hidden
-                        />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-              <p className="mt-5 text-[11px] text-text-secondary">
-                Language changes are saved automatically.
-              </p>
-            </Card>
-          )}
-
           {/* DATA & PRIVACY */}
           {activeSection === "privacy" && (
             <>
@@ -647,7 +538,7 @@ export function AdminSettingsClient({ profile }: Props) {
                   />
                   <div>
                     <h2 className="text-lg font-semibold text-navy">
-                      {t("settings.dataPrivacy")}
+                      Data & Privacy
                     </h2>
                     <p className="text-xs text-text-secondary">
                       Control your data and privacy settings.
@@ -713,7 +604,7 @@ export function AdminSettingsClient({ profile }: Props) {
                 <Users className="h-4 w-4 text-text-secondary" aria-hidden />
                 <div>
                   <h2 className="text-lg font-semibold text-navy">
-                    {t("settings.teamPermissions")}
+                    Team & Permissions
                   </h2>
                   <p className="text-xs text-text-secondary">
                     Manage roles and access for your organization.
@@ -763,7 +654,7 @@ export function AdminSettingsClient({ profile }: Props) {
                 <Plug className="h-4 w-4 text-text-secondary" aria-hidden />
                 <div>
                   <h2 className="text-lg font-semibold text-navy">
-                    {t("settings.integrations")}
+                    Integrations
                   </h2>
                   <p className="text-xs text-text-secondary">
                     Connected services and APIs.
